@@ -124,7 +124,9 @@ class Server(BaseServer):
                         account=''
                     )
                     result = engine.execute(new_d)
-                    domain_id = int(result.inserted_primary_key)
+                    domain_id = result.inserted_primary_key
+                    if not isinstance(domain_id, int) and not isinstance(domain_id, str):
+                        domain_id = domain_id[0]
                 else:
                     domain_id = int(record[0])
 
