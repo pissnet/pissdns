@@ -129,7 +129,7 @@ class Server(BaseServer):
                     domain_id = record[0]
 
                 # Check if we need to update records by comparing the timestamp in the SOA record
-                query = records.select().where((records.c.domain_id == domain_id) * (records.c.type == 'SOA'))
+                query = records.select().where((records.c.domain_id == domain_id) & (records.c.type == 'SOA'))
                 result = engine.execute(query)
                 soa_ts = ""
                 if record := result.fetchone():
@@ -140,7 +140,7 @@ class Server(BaseServer):
                     continue
 
                 # Delete all old records and creete em new
-                query = records.delete().where(records.c.domain_id.notin_(config.DO_NOT_DELETE_DOMAINS))
+                query = records.delete().where(records.c.domain_id == domain_id)
                 engine.execute(query)
 
                 self.insert_dns_record(
