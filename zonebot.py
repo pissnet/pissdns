@@ -124,9 +124,9 @@ class Server(BaseServer):
                         account=''
                     )
                     result = engine.execute(new_d)
-                    domain_id = result.inserted_primary_key
+                    domain_id = int(result.inserted_primary_key)
                 else:
-                    domain_id = record[0]
+                    domain_id = int(record[0])
 
                 # Check if we need to update records by comparing the timestamp in the SOA record
                 query = records.select().where((records.c.domain_id == domain_id) & (records.c.type == 'SOA'))
