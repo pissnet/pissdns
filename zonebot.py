@@ -1,6 +1,8 @@
 import asyncio
+import re
 import sys
 import time
+from ipaddress import IPv4Address, AddressValueError, IPv6Address
 
 import aiohttp
 from irctokens import build, Line
@@ -164,13 +166,43 @@ class Server(BaseServer):
                 # Insert dem records
                 for rec in dom['records']:
                     # Ignore invalid stuff
-                    if rec['type'] not in ('A', 'AAAA', 'CNAME', 'TXT'):
+                    if rec['type'] not in ('A', 'AAAA', 'CNAME', 'TXT', 'NS'):
                         continue
-                    # TODO: Validate records?
+                    # Validations:
+                    # Name must be valid dns
+                    if not re.match(r"[a-zA-Z0-9.-]+$", rec['name']):
+                        print(f"Got an invalid record! (Bad label) {rec}")
+                        continue
+
+                    if len(rec['value']) > 255:
+                        print(f"Got an invalid record! (Value too long) {rec}")
+                        continue
+
+                    if rec['type'] == 'A':
+                        try:
+                            IPv4Address(rec['value'])
+                        except AddressValueError:
+                            print(f"Got an invalid record! (Bad IPv4) {rec}")
+                            continue
+                    elif rec['type'] == 'AAAA':
+                        try:
+                            IPv6Address(rec['value'])
+                        except AddressValueError:
+                            print(f"Got an invalid record! (Bad IPv6) {rec}")
+                            continue
+                    elif rec['type'] in ('CNAME', 'NS'):
+                        if not re.match(r"[a-zA-Z0-9.-]+$", rec['value']):
+                            print(f"Got an invalid record! (Bad value) {rec}")
+                            continue
+
+                    rec_name = f"{rec['name']}.{dom['name']}" if rec['name'] != "@" else dom['name']
+                    if rec_name > 255:
+                        print(f"Got an invalid record! (Name too long) {rec}")
+                        continue
 
                     self.insert_dns_record(
                         domain_id=domain_id,
-                        name=f"{rec['name']}.{dom['name']}" if rec['name'] != "@" else dom['name'],
+                        name=rec_name,
                         record_type=rec['type'],
                         content=rec['value'],
                         ttl=60  # TODO: Configurable TTL (wiki task)
