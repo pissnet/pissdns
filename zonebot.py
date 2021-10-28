@@ -106,38 +106,54 @@ class Server(BaseServer):
 
         # Transaction in case we fuck up....
         with engine.begin():
-            # Delete all the old domains
-            query = domains.delete().where(domains.c.id.notin_(config.DO_NOT_DELETE_DOMAINS))
-            engine.execute(query)
-            # .. and their records
-            query = records.delete().where(records.c.domain_id.notin_(config.DO_NOT_DELETE_DOMAINS))
-            engine.execute(query)
-
             # Start inserting the new stuff
             for dom in data['domains']:
-                # Insert domain
-                new_d = insert(domains).values(
-                    name=dom['name'],
-                    master='',
-                    last_check=None,
-                    type="MASTER",
-                    notified_serial=None,
-                    account=''
-                )
-                result = engine.execute(new_d)
+                print(f"Updating {dom['name']}... ")
+                # Check if domain exists.
+                query = domains.select().where(domains.c.name == dom['name'])  # noqa
+                result = engine.execute(query)
+                record = result.fetchone()
+                if not record:
+                    # New domain, do the insertion
+                    new_d = insert(domains).values(
+                        name=dom['name'],
+                        master='',
+                        last_check=None,
+                        type="MASTER",
+                        notified_serial=None,
+                        account=''
+                    )
+                    result = engine.execute(new_d)
+                    domain_id = result.inserted_primary_key
+                else:
+                    domain_id = record[0]
 
-                # TODO: Get SOA TS from the wiki instead of making it up here
+                # Check if we need to update records by comparing the timestamp in the SOA record
+                query = records.select().where((records.c.domain_id == domain_id) * (records.c.type == 'SOA'))
+                result = engine.execute(query)
+                soa_ts = ""
+                if record := result.fetchone():
+                    soa_ts = record[4].split(" ")[2]
+
+                if soa_ts == dom['last_modified']:
+                    print("  - Skipping, not modified")
+                    continue
+
+                # Delete all old records and creete em new
+                query = records.delete().where(records.c.domain_id.notin_(config.DO_NOT_DELETE_DOMAINS))
+                engine.execute(query)
+
                 self.insert_dns_record(
-                    domain_id=result.inserted_primary_key,
+                    domain_id=domain_id,
                     name=dom['name'],
                     record_type='SOA',
-                    content=f"{config.SOA_NS} {config.SOA_EMAIL} {int(time.time())} 300 60 691200 3600",
+                    content=f"{config.SOA_NS} {config.SOA_EMAIL} {dom['last_modified']} 300 60 691200 3600",
                     ttl=7200
                 )
 
                 for ns in config.NAMESERVERS:
                     self.insert_dns_record(
-                        domain_id=result.inserted_primary_key,
+                        domain_id=domain_id,
                         name=dom['name'],
                         record_type='NS',
                         content=ns
@@ -151,7 +167,7 @@ class Server(BaseServer):
                     # TODO: Validate records?
 
                     self.insert_dns_record(
-                        domain_id=result.inserted_primary_key,
+                        domain_id=domain_id,
                         name=f"{rec['name']}.{dom['name']}" if rec['name'] != "@" else dom['name'],
                         record_type=rec['type'],
                         content=rec['value'],
