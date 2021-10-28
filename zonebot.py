@@ -121,7 +121,7 @@ class Server(BaseServer):
                     master='',
                     last_check=None,
                     type="MASTER",
-                    notified_serial=int(time.time()),
+                    notified_serial=None,
                     account=''
                 )
                 result = engine.execute(new_d)
