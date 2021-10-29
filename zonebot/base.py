@@ -1,4 +1,5 @@
 import asyncio
+import hashlib
 import re
 import subprocess
 from ipaddress import IPv4Address, AddressValueError, IPv6Address
@@ -22,10 +23,13 @@ class BaseZoneBot(BaseServer):
             await asyncio.sleep(300)  # 5 mins
             await self.update_dns()
 
-    async def msg(self, line, msg):
-        source = line.params[0]
-        if "#" not in line.params[0]:
-            source = line.hostmask.nickname
+    async def msg(self, line_or_channel, msg):
+        if not isinstance(line_or_channel, str):
+            source = line_or_channel.params[0]
+            if "#" not in line_or_channel.params[0]:
+                source = line_or_channel.hostmask.nickname
+        else:
+            source = line_or_channel
         await self.send(build("PRIVMSG", [source, msg]))
 
     async def line_read(self, line: Line):
@@ -67,7 +71,11 @@ class BaseZoneBot(BaseServer):
     async def update_dns(self):
         async with aiohttp.ClientSession() as session:
             async with session.get("https://api.shitposting.space/piss/dns") as resp:
+                raw_data = await resp.read()
                 data = await resp.json()
+
+        souce_hash = hashlib.sha1(raw_data).hexdigest()[:10]
+        await self.msg("#pissdns", f"Deploying zone. Source hash: \002{souce_hash}\002.")
 
         # check if the data is newer than what we already got...
         last_data = ''
