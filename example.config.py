@@ -1,3 +1,6 @@
+# Either powerdns or tinydns
+DNS_SERVER = "powerdns"
+
 # IRC Nick
 NICK = "Pissco_ns1"
 # IRC Server
