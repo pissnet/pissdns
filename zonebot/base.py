@@ -1,5 +1,6 @@
 import asyncio
 import re
+import subprocess
 from ipaddress import IPv4Address, AddressValueError, IPv6Address
 
 import aiohttp
@@ -21,14 +22,32 @@ class BaseZoneBot(BaseServer):
             await asyncio.sleep(300)  # 5 mins
             await self.update_dns()
 
+    async def msg(self, line, msg):
+        source = line.params[0]
+        if "#" not in line.params[0]:
+            source = line.hostmask.nickname
+        await self.send(build("PRIVMSG", [source, msg]))
+
     async def line_read(self, line: Line):
         print(f"{self.name} < {line.format()}")
         if line.command == "001":
             await self.send(build("JOIN", ["#pisswiki"]))
-        elif line.command == "PRIVMSG" and line.hostmask.nickname == "Pisswiki":  # TODO: Validate that Pisswiki is the real one?
+        elif line.command == "PRIVMSG":
             message = line.params[-1].strip()
-            if message.startswith("\00314[[\00307Domain:"):
-                await self.update_dns()
+            if line.hostmask.nickname == "Pisswiki":  # TODO: Validate that Pisswiki is the real one?
+                if message.startswith("\00314[[\00307Domain:"):
+                    await self.update_dns()
+
+            if not message.startswith("!"):
+                return
+
+            message = message.replace("!", '')
+            command = message.split(" ")[0].lower()
+
+            if command == "version":
+                ver_date = subprocess.check_output(['git', 'show', '-s', '--format=format:%cd']).decode()
+                tag = subprocess.check_output(['git', 'describe', '--always', '--dirty']).decode().strip()
+                await self.msg(line, f"Version: \002{tag}\002 ({ver_date})")
 
     def insert_dns_record(self, domain_id, name, record_type, content, ttl=3600):
         raise NotImplementedError
