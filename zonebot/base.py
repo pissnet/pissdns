@@ -31,7 +31,7 @@ class BaseZoneBot(BaseServer):
     async def line_read(self, line: Line):
         print(f"{self.name} < {line.format()}")
         if line.command == "001":
-            await self.send(build("JOIN", ["#pisswiki", "#pissdns"]))
+            await self.send(build("JOIN", ["#pisswiki,#pissdns"]))
         elif line.command == "PRIVMSG":
             message = line.params[-1].strip()
             if line.hostmask.nickname == "Pisswiki":  # TODO: Validate that Pisswiki is the real one?
