@@ -97,11 +97,6 @@ class BaseZoneBot(BaseServer):
                 if rec['type'] not in ('A', 'AAAA', 'CNAME', 'TXT', 'NS'):
                     continue
                 # Validations:
-                # Name must be valid dns
-                if not re.match(r"^[a-zA-Z0-9.-]+$", rec['name']):
-                    print(f"Got an invalid record! (Bad label) {rec}")
-                    continue
-
                 if len(rec['value']) > 255:
                     print(f"Got an invalid record! (Value too long) {rec}")
                     continue
@@ -122,6 +117,15 @@ class BaseZoneBot(BaseServer):
                     if not re.match(r"^[a-zA-Z0-9.-]+$", rec['value']):
                         print(f"Got an invalid record! (Bad value) {rec}")
                         continue
+
+                if rec['name'] == '@' and rec['type'] in ('CNAME', 'NS'):
+                    print(f"Got an invalid record! (CNAME or NS on root not allowed) {rec}")
+                    continue
+
+                # Name must be valid dns
+                if not re.match(r"^[a-zA-Z0-9.-]+$", rec['name']) and rec['name'] != '@':
+                    print(f"Got an invalid record! (Bad label) {rec}")
+                    continue
 
                 rec_name = f"{rec['name']}.{dom['name']}" if rec['name'] != "@" else dom['name']
                 if len(rec_name) > 255:
