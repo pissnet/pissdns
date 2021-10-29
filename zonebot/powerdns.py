@@ -85,7 +85,7 @@ class PowerDNSZoneBot(BaseZoneBot):
         if record := result.fetchone():
             soa_ts = record[4].split(" ")[2]
 
-        return soa_ts == last_modified
+        return soa_ts != last_modified
 
     def pre_update(self, domain_id, _):
         # Delete all old records
