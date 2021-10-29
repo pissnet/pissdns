@@ -74,9 +74,6 @@ class BaseZoneBot(BaseServer):
                 raw_data = await resp.read()
                 data = await resp.json()
 
-        souce_hash = hashlib.sha1(raw_data).hexdigest()[:10]
-        await self.msg("#pissdns", f"Deploying zone. Source hash: \002{souce_hash}\002.")
-
         # check if the data is newer than what we already got...
         last_data = ''
         try:
@@ -88,6 +85,8 @@ class BaseZoneBot(BaseServer):
         if data['last_modified'] == last_data:
             return
         print("Fresh data, updating...")
+        souce_hash = hashlib.sha1(raw_data).hexdigest()[:10]
+        await self.msg("#pissdns", f"Deploying zone. Source hash: \002{souce_hash}\002.")
 
         # Start inserting the new stuff
         for dom in data['domains']:
