@@ -124,7 +124,7 @@ class BaseZoneBot(BaseServer):
                         continue
 
                 rec_name = f"{rec['name']}.{dom['name']}" if rec['name'] != "@" else dom['name']
-                if rec_name > 255:
+                if len(rec_name) > 255:
                     print(f"Got an invalid record! (Name too long) {rec}")
                     continue
 
