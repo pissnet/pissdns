@@ -114,7 +114,7 @@ class BaseZoneBot(BaseServer):
                         print(f"Got an invalid record! (Bad IPv6) {rec}")
                         continue
                 elif rec['type'] in ('CNAME', 'NS'):
-                    if not re.match(r"^[a-zA-Z0-9.-]+$", rec['value']):
+                    if not re.match(r"^[a-zA-Z0-9.-_]+$", rec['value']):
                         print(f"Got an invalid record! (Bad value) {rec}")
                         continue
 
@@ -123,7 +123,7 @@ class BaseZoneBot(BaseServer):
                     continue
 
                 # Name must be valid dns
-                if not re.match(r"^[a-zA-Z0-9.-]+$", rec['name']) and rec['name'] != '@':
+                if not re.match(r"^[a-zA-Z0-9._-]+$", rec['name']) and rec['name'] != '@':
                     print(f"Got an invalid record! (Bad label) {rec}")
                     continue
 
