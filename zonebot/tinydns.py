@@ -24,12 +24,18 @@ class TinyDNSZoneBot(BaseZoneBot):
             content = "".join(map(lambda x: '\\' + oct(x)[2:].zfill(3), ipaddress.ip_address(x).packed))
             f.write(f":{name}:28:{content}:{ttl}\n")
         elif record_type == "TXT":
-            # TODO: Moar escaping
-            content = content.replace(":", "\072")
-            f.write(f"'{name}:{content}:{ttl}\n")
+            f.write(f"'{name}:{self.sane_txt(content)}:{ttl}\n")
         elif record_type == "CNAME":
             f.write(f"C{name}:{content}:{ttl}\n")
         f.close()
+
+    def sane_txt(self, x):
+        if '#' in x:
+            x = x.split('#')[0]
+        items = []
+        for c in x:
+            items.append("\\" + oct(ord(c))[2:].zfill(3))
+        return "".join(items)
 
     def get_zone(self, zone_name: str):
         return zone_name
