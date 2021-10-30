@@ -149,7 +149,7 @@ class BaseZoneBot(BaseServer):
                         print(f"Got an invalid record! (Bad value) {rec}")
                         continue
                 elif rec['type'] == 'CAA':
-                    if not re.match(r"^(\d{1,3}) ([a-z0-9]+) \"([a-zA-Z0-9\-._@:;/]+)\"$", rec['value']):
+                    if not re.match(r"^(\d{1,3}) ([a-z0-9]+) \"([a-zA-Z0-9\-._@:;/= ]+)\"$", rec['value']):
                         print(f"Got an invalid record! (Bad value) {rec}")
                         continue
 
