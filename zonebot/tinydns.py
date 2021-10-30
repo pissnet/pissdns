@@ -1,18 +1,46 @@
+import ipaddress
+import os
+from datetime import datetime
+
 from .base import BaseZoneBot
 
 
 class TinyDNSZoneBot(BaseZoneBot):
-    def insert_dns_record(self, domain_id, name, record_type, content, ttl=3600):
-        # This func should write a record to a file
-        pass
-
     def pre_update(self, domain_id, domain_data):
-        # If you want to write a header of some sorts for a zone, you can do it here I guess
-        # This will be executed before the first insert_dns_record is called
-        pass
+        with open("output-zones", "a") as f:
+            f.write(f"\n# Zone: {domain_id}\n")
+            f.write(f"# Owner: {domain_data['owner']}\n")  # I bet you want to sanitize this
+
+    def insert_dns_record(self, domain_id, name, record_type, content, ttl=3600):
+        f = open("output-zones", "a")
+        if record_type == "SOA":
+            content = content.split(" ")
+            f.write(f"Z{name}:{content[0].strip('.')}:{content[1].strip('.')}:{content[2]}\n")
+        elif record_type == "NS":
+            f.write(f".{name}::{content}:{ttl}\n")
+        elif record_type == "A":
+            f.write(f"+{name}:{content}:{ttl}\n")
+        elif record_type == "AAAA":
+            content = "".join(map(lambda x: '\\' + oct(x)[2:].zfill(3), ipaddress.ip_address(x).packed))
+            f.write(f":{name}:28:{content}:{ttl}\n")
+        elif record_type == "TXT":
+            # TODO: Moar escaping
+            content = content.replace(":", "\072")
+            f.write(f"'{name}:{content}:{ttl}\n")
+        elif record_type == "CNAME":
+            f.write(f"C{name}:{content}:{ttl}\n")
+        f.close()
 
     def get_zone(self, zone_name: str):
         return zone_name
+
+    def pre_db_update(self):
+        try:
+            os.remove("output-zones")
+        except FileNotFoundError:
+            pass
+        with open("output-zones", "w") as f:
+            f.write(f"# Last-modified: {datetime.utcnow().isoformat()}\n")
 
     def needs_updating(self, domain_id, last_modified: int) -> bool:
         return True

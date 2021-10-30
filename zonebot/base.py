@@ -68,6 +68,10 @@ class BaseZoneBot(BaseServer):
         """ Executed just before we start inserting records for a domain we are going to update. """
         raise NotImplementedError
 
+    def pre_db_update(self):
+        """ Executed before inserting any records at all """
+        pass
+
     async def update_dns(self):
         async with aiohttp.ClientSession() as session:
             async with session.get("https://api.shitposting.space/piss/dns") as resp:
@@ -87,6 +91,7 @@ class BaseZoneBot(BaseServer):
         print("Fresh data, updating...")
         souce_hash = hashlib.sha1(raw_data).hexdigest()[:10]
         await self.msg("#pissdns", f"Deploying zone. Source hash: \002{souce_hash}\002.")
+        self.pre_db_update()
 
         # Start inserting the new stuff
         for dom in data['domains']:
