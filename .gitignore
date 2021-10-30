@@ -1,2 +1,4 @@
 config.py
 *.pyc
+last_data_ts
+output-zones
