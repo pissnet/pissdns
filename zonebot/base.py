@@ -114,6 +114,15 @@ class BaseZoneBot(BaseServer):
                 ttl=7200
             )
 
+            self.insert_dns_record(
+                domain_id=domain_id,
+                name=dom['name'],
+                record_type='TXT',
+                content=f"Zone managed by the pissnet wiki DNS system. "
+                        f"Contact #pisswiki on ircs://irc.letspiss.net/#pisswiki for abuse with full logs.",
+                ttl=300
+            )
+
             for ns in self.config.NAMESERVERS:
                 self.insert_dns_record(
                     domain_id=domain_id,
