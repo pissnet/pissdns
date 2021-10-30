@@ -21,7 +21,7 @@ class TinyDNSZoneBot(BaseZoneBot):
         elif record_type == "A":
             f.write(f"+{name}:{content}:{ttl}\n")
         elif record_type == "AAAA":
-            content = "".join(map(lambda x: '\\' + oct(x)[2:].zfill(3), ipaddress.ip_address(x).packed))
+            content = "".join(map(lambda x: '\\' + oct(x)[2:].zfill(3), ipaddress.ip_address(content).packed))
             f.write(f":{name}:28:{content}:{ttl}\n")
         elif record_type == "TXT":
             f.write(f"'{name}:{self.sane_txt(content)}:{ttl}\n")
