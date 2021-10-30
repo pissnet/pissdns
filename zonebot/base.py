@@ -125,7 +125,7 @@ class BaseZoneBot(BaseServer):
             # Insert dem records
             for rec in dom['records']:
                 # Ignore invalid stuff
-                if rec['type'] not in ('A', 'AAAA', 'CNAME', 'TXT', 'NS'):
+                if rec['type'] not in ('A', 'AAAA', 'CNAME', 'TXT', 'NS', 'CAA'):
                     continue
                 # Validations:
                 if len(rec['value']) > 255:
@@ -146,6 +146,10 @@ class BaseZoneBot(BaseServer):
                         continue
                 elif rec['type'] in ('CNAME', 'NS'):
                     if not re.match(r"^[a-zA-Z0-9.-_]+$", rec['value']):
+                        print(f"Got an invalid record! (Bad value) {rec}")
+                        continue
+                elif rec['type'] == 'CAA':
+                    if not re.match(r"^\d{1,3} [a-z0-9]+ \"([a-zA-Z0-9\-._@:]+)\"$", rec['value']):
                         print(f"Got an invalid record! (Bad value) {rec}")
                         continue
 
