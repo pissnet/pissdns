@@ -37,7 +37,7 @@ class PowerDNSZoneBot(BaseZoneBot):
     def __init__(self, bot, name: str, config):
         super().__init__(bot, name, config)
         self.engine = sqlalchemy.create_engine(
-            config.DATABASE_URL,
+            config.DATABASE_URL, pool_pre_ping=True
         )
 
     def insert_dns_record(self, domain_id, name, record_type, content, ttl=3600):
