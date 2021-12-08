@@ -53,7 +53,7 @@ class BaseZoneBot(BaseServer):
                 tag = subprocess.check_output(['git', 'describe', '--always', '--dirty']).decode().strip()
                 await self.msg(line, f"Version: \002{tag}\002 ({ver_date})")
 
-    def insert_dns_record(self, domain_id, name, record_type, content, ttl=3600):
+    def insert_dns_record(self, domain_id, name, record_type, content, prio=0, ttl=3600):
         raise NotImplementedError
 
     def get_zone(self, zone_name: str):
@@ -134,8 +134,11 @@ class BaseZoneBot(BaseServer):
             # Insert dem records
             for rec in dom['records']:
                 # Ignore invalid stuff
-                if rec['type'] not in ('A', 'AAAA', 'CNAME', 'TXT', 'NS', 'CAA'):
+                if rec['type'] not in ('A', 'AAAA', 'CNAME', 'TXT', 'NS', 'CAA', 'MX'):
                     continue
+
+                prio = 0
+
                 # Validations:
                 if len(rec['value']) > 255:
                     print(f"Got an invalid record! (Value too long) {rec}")
@@ -161,6 +164,14 @@ class BaseZoneBot(BaseServer):
                     if not re.match(r"^(\d{1,3}) ([a-z0-9]+) \"([a-zA-Z0-9\-._@:;/= ]+)\"$", rec['value']):
                         print(f"Got an invalid record! (Bad value) {rec}")
                         continue
+                elif rec['type'] == 'MX':
+                    splt = rec['value'].split(" ")
+                    if len(splt) == 2:  # We got a prio!
+                        prio = splt[0]
+                        rec['value'] = splt[1]
+                    elif len(splt) > 2:
+                        print(f"Got an invalid record! (Bad value) {rec}")
+                        continue
 
                 if rec['name'] == '@' and rec['type'] in ('CNAME', 'NS'):
                     print(f"Got an invalid record! (CNAME or NS on root not allowed) {rec}")
@@ -181,6 +192,7 @@ class BaseZoneBot(BaseServer):
                     name=rec_name,
                     record_type=rec['type'],
                     content=rec['value'],
+                    prio=prio,
                     ttl=60  # TODO: Configurable TTL (wiki task)
                 )
 

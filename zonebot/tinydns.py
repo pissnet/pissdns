@@ -11,7 +11,7 @@ class TinyDNSZoneBot(BaseZoneBot):
             f.write(f"\n# Zone: {domain_id}\n")
             f.write(f"# Owner: {domain_data['owner']}\n")  # I bet you want to sanitize this
 
-    def insert_dns_record(self, domain_id, name, record_type, content, ttl=3600):
+    def insert_dns_record(self, domain_id, name, record_type, content, prio=0, ttl=3600):
         f = open("output-zones", "a")
         if record_type == "SOA":
             content = content.split(" ")
@@ -27,6 +27,8 @@ class TinyDNSZoneBot(BaseZoneBot):
             f.write(f"'{name}:{self.sane_txt(content)}:{ttl}\n")
         elif record_type == "CNAME":
             f.write(f"C{name}:{content}:{ttl}\n")
+        elif record_type == "MX":
+            f.write(f"@{name}::{content}:{prio}\n")
         f.close()
 
     def sane_txt(self, x):
