@@ -47,7 +47,7 @@ class PowerDNSZoneBot(BaseZoneBot):
             type=record_type,
             content=content,
             ttl=ttl,
-            prio=0,
+            prio=prio,
             disabled=0,
             ordername=None,
             auth=1
