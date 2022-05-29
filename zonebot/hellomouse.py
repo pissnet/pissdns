@@ -1,5 +1,6 @@
 from .base import BaseZoneBot
 import json
+from os.path import exists
 
 def recursive_items(dictionary: dict[str]):
     for key, value in dictionary.items():
@@ -124,7 +125,7 @@ class HellomouseZoneBot(BaseZoneBot):
             zone: dict[str, list[dict[str, int | str | bool] | str] | list[str]] = data['zone'] 
 
             if record_type == 'SOA':
-                data['SOA'] = {
+                data['soa'] = {
                     'mname': self.config.SOA_NS,
                     'rname': self.config.SOA_EMAIL,
                     'serial': content.split(' ')[2],
@@ -161,6 +162,14 @@ class HellomouseZoneBot(BaseZoneBot):
             json.dump(data, f, indent=2)
 
     def post_update(self, domain_id: str):
+        if not exists(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/index.js'):
+            # Why yes, we are writing javascript in Python
+            with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/index.js', 'w+') as f:
+                f.write('const { zone, soa } = require("./zone_data.json");\n')
+                f.write('const Zone = require("../../src/module").Zone;\n')
+                f.write('\n')
+                f.write(f'module.exports = new Zone({domain_id}, zone, soa);\n')
+
         with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'w+') as f:
             data = json.load(f)
             dataItems = list(recursive_items(data['zone']))
