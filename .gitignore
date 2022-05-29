@@ -29,3 +29,8 @@ config.py
 *.pyc
 last_data_ts
 output-zones
+# Python virtual env files
+lib/
+include/
+bin/
+pyvenv.cfg
