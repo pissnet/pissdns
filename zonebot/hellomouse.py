@@ -27,13 +27,13 @@ class HellomouseZoneBot(BaseZoneBot):
     def needs_updating(self, domain_id: str, last_modified: int) -> bool:
         # Check if we need to update records by comparing the timestamp in the SOA record
         try:
-            with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}.zone.json', 'r') as f:
+            with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'r') as f:
                 data = json.load(f)
                 if data['last_modified'] != last_modified:
                     return True
         except FileNotFoundError:
             data = { 'last_modified': last_modified, 'zone': {} }
-            with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}.zone', 'w+') as f:
+            with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'w+') as f:
                 json.dump(data, f, indent=2)
             return True
 
@@ -116,7 +116,7 @@ class HellomouseZoneBot(BaseZoneBot):
 
 
     def insert_dns_record(self, domain_id: str, name: str, record_type: str, content: str, prio=0, ttl=3600):
-        with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}.zone', 'w+') as f:
+        with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'w+') as f:
             try:
                 data = json.load(f)
             except json.decoder.JSONDecodeError:
@@ -161,7 +161,7 @@ class HellomouseZoneBot(BaseZoneBot):
             json.dump(data, f, indent=2)
 
     def post_update(self, domain_id: str):
-        with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}.json', 'w+') as f:
+        with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'w+') as f:
             data = json.load(f)
             dataItems = list(recursive_items(data['zone']))
             
