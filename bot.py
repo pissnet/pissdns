@@ -14,6 +14,8 @@ if config.DNS_SERVER == 'powerdns':
     from zonebot.powerdns import PowerDNSZoneBot as Server
 elif config.DNS_SERVER == 'tinydns':
     from zonebot.tinydns import TinyDNSZoneBot as Server
+elif config.DNS_SERVER == 'hellomouse':
+    from zonebot.hellomouse import HellomouseZoneBot as Server
 
 
 SERVERS = [
