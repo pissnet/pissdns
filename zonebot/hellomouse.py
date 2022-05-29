@@ -39,9 +39,9 @@ class HellomouseZoneBot(BaseZoneBot):
 
         return False
 
-    def handleRecords(self, tree: dict[str, list[dict[str, int | str | bool] | str] | list[str] | dict[str, str | int]], record_type: str, content: str, prio=0):
+    def _handleRecords(self, tree: dict[str, list[dict[str, int | str | bool] | str] | list[str] | dict[str, str | int]], record_type: str, content: str, prio=0):
         if record_type in self.arrayRecords:
-            self.handleArrayRecords(tree, record_type, content, prio)
+            self._handleArrayRecords(tree, record_type, content, prio)
         else:
             if record_type == 'CNAME':
                 tree['ANY'] = {
@@ -62,7 +62,7 @@ class HellomouseZoneBot(BaseZoneBot):
             else:
                 tree[record_type] = content
 
-    def handleArrayRecords(self, tree: dict[str, list[dict[str, int | str | bool] | str] | list[str]], record_type: str, content: str, prio=0):
+    def _handleArrayRecords(self, tree: dict[str, list[dict[str, int | str | bool] | str] | list[str]], record_type: str, content: str, prio=0):
         if tree[record_type] is None:
             tree[record_type] = []
         match record_type:
@@ -135,7 +135,7 @@ class HellomouseZoneBot(BaseZoneBot):
                 }
             else:
                 if name == '@':
-                    self.handleRecords(zone)
+                    self._handleRecords(zone)
                 else:
                     if zone['child'] is None:
                         zone['child'] = {}
@@ -152,12 +152,12 @@ class HellomouseZoneBot(BaseZoneBot):
                                 current['child'][names[i]]['child'] = {}
                             current = current['child'][names[i]]
                         
-                        self.handleRecords(current['child'][names[-1]], record_type, content, prio)
+                        self._handleRecords(current['child'][names[-1]], record_type, content, prio)
                     else:
                         if zone['child'][name] is None:
                             zone['child'][name] = {}
 
-                        self.handleRecords(zone['child'][name], record_type, content, prio)
+                        self._handleRecords(zone['child'][name], record_type, content, prio)
             json.dump(data, f, indent=2)
 
     def post_update(self, domain_id: str):
