@@ -173,7 +173,7 @@ class HellomouseZoneBot(BaseZoneBot):
         with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'w+') as f:
             data = json.load(f)
             dataItems = list(recursive_items(data['zone']))
-            
+
             for i in range(len(dataItems)):
                 (key, value) = dataItems[i]
                 if key in self.arrayRecords:
