@@ -57,7 +57,7 @@ class HellomouseZoneBot(BaseZoneBot):
                 tree[record_type] = content
 
     def handleArrayRecords(self, tree: dict[str, list[dict[str, int | str | bool] | str] | list[str]], record_type: str, content: str, prio=0):
-        if tree[record_type] == None:
+        if tree[record_type] is None:
             tree[record_type] = []
         match record_type:
             case 'CAA':
