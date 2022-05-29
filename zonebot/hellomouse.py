@@ -1,6 +1,12 @@
 from .base import BaseZoneBot
 import json
 
+def recursive_items(dictionary: dict[str]):
+    for key, value in dictionary.items():
+        if type(value) is dict:
+            yield from recursive_items(value)
+        else:
+            yield (key, value)
 
 class HellomouseZoneBot(BaseZoneBot):
     def __init__(self, bot, name: str, config):
@@ -155,6 +161,24 @@ class HellomouseZoneBot(BaseZoneBot):
             json.dump(data, f, indent=2)
 
     def post_update(self, domain_id: str):
+        with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}.json', 'w+') as f:
+            data = json.load(f)
+            dataItems = list(recursive_items(data['zone']))
+            
+            for i in range(len(dataItems)):
+                (key, value) = dataItems[i]
+                if key in self.arrayRecords:
+                    if type(value) is list:
+                        value = map(lambda x: { 'data': x }, value)
+                    else:
+                        value = { 'data': value }
+                    dataItems[i] = (key, {
+                        'type': 'static',
+                        'data': [value]
+                    })
+
+            json.dump(dict(dataItems), f, indent=2)
+
         with open(f'{self.config.COREDNS_LOCATION}/Corefile', 'w+') as f:
             contents = f.read()
 
