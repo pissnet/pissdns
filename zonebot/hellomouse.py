@@ -171,10 +171,7 @@ class HellomouseZoneBot(BaseZoneBot):
 
     def insert_dns_record(self, domain_id: str, name: str, record_type: str, content: str, prio=0, ttl=3600):
         with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'r+') as f:
-            try:
-                data = json.load(f)
-            except json.decoder.JSONDecodeError:
-                data = { 'zone': {}}
+            data = json.load(f)
             zone: ZoneDataFormat = data['zone']
 
             # The SOA record is not handled in the DNS records by us, it's handled by the system itself
