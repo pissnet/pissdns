@@ -115,7 +115,7 @@ class HellomouseZoneBot(BaseZoneBot):
 
     def _handleArrayRecords(self, tree: ZoneDataFormat, record_type: str, content: str, prio=0):
         """ Handle all necessary transformations on the records that are arrays (that accept multiple values) """
-        if tree[record_type] is None:
+        if not record_type in tree:
             tree[record_type] = []
         match record_type:
             case 'CAA':
@@ -192,7 +192,7 @@ class HellomouseZoneBot(BaseZoneBot):
                     self._handleRecords(zone)
                 # Handle child (subdomain) records
                 else:
-                    if zone['child'] is None:
+                    if not 'child' in zone:
                         zone['child'] = {}
 
                     # Handle multi-level subdomains
@@ -212,7 +212,7 @@ class HellomouseZoneBot(BaseZoneBot):
                         self._handleRecords(current['child'][names[-1]], record_type, content, prio)
                     # Handle single-level subdomains
                     else:
-                        if zone['child'][name] is None:
+                        if not name in zone['child']:
                             zone['child'][name] = {}
 
                         self._handleRecords(zone['child'][name], record_type, content, prio)
