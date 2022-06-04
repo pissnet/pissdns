@@ -187,8 +187,10 @@ class HellomouseZoneBot(BaseZoneBot):
                     'minimum': 3600
                 }
             else:
+                # Remove the domain name from the record name
+                record_name = name.replace('.' + domain_id, '')
                 # Handle apex records
-                if name == '@' or name == domain_id:
+                if record_name == '@' or record_name == domain_id:
                     self._handleRecords(zone, record_type, content, prio)
                 # Handle child (subdomain) records
                 else:
@@ -196,9 +198,9 @@ class HellomouseZoneBot(BaseZoneBot):
                         zone['child'] = {}
 
                     # Handle multi-level subdomains
-                    if '.' in name:
+                    if '.' in record_name:
                         # Split the name into a list of subdomains, and reverse it to get the correct order (by depth)
-                        names = name.split('.')[::-1]
+                        names = record_name.split('.')[::-1]
                         current = zone
 
                         # Iterate over all levels of the subdomains to create the data structure, and get to the last one
@@ -212,10 +214,10 @@ class HellomouseZoneBot(BaseZoneBot):
                         self._handleRecords(current['child'][names[-1]], record_type, content, prio)
                     # Handle single-level subdomains
                     else:
-                        if not name in zone['child']:
-                            zone['child'][name] = {}
+                        if not record_name in zone['child']:
+                            zone['child'][record_name] = {}
 
-                        self._handleRecords(zone['child'][name], record_type, content, prio)
+                        self._handleRecords(zone['child'][record_name], record_type, content, prio)
             json.dump(data, f, indent=2)
 
     def post_update(self, domain_id: str):
