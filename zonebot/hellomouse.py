@@ -57,6 +57,13 @@ class HellomouseZoneBot(BaseZoneBot):
             '}'
         ])
 
+    def pre_update(self, domain_id, domain_data):
+        # Avoid throwing NotImplementedError
+        pass
+    
+    def pre_db_update(self):
+        # Avoid throwing NotImplementedError
+        pass
 
     def get_zone(self, zone_name: str) -> str:
         return zone_name
