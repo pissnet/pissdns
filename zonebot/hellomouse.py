@@ -226,7 +226,7 @@ class HellomouseZoneBot(BaseZoneBot):
                 f.write('const { zone, soa } = require("./zone_data.json");\n')
                 f.write('const Zone = require("../../src/module").Zone;\n')
                 f.write('\n')
-                f.write(f'module.exports = new Zone({domain_id}, zone, soa);\n')
+                f.write(f'module.exports = new Zone("{domain_id}", zone, soa);\n')
 
         # Apply some final transformations to the zone file
         with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'w+') as f:
