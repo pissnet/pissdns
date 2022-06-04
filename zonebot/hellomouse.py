@@ -2,6 +2,7 @@ from typing import Literal, Optional, TypedDict
 from .base import BaseZoneBot
 import json
 from os.path import exists
+from os import makedirs
 
 def recursive_items(dictionary: dict[str]):
     for key, value in dictionary.items():
@@ -69,6 +70,11 @@ class HellomouseZoneBot(BaseZoneBot):
         return zone_name
 
     def needs_updating(self, domain_id: str, last_modified: int) -> bool:
+        # Check if the zone's directory exists (there isn't a better place to put this)
+        if not exists(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/'):
+            print(f'Creating directory for {domain_id}')
+            makedirs(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/', exist_ok=True)
+
         # Check if we need to update records by comparing the timestamp in the SOA record
         try:
             with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'r') as f:
