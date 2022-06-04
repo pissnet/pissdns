@@ -85,6 +85,8 @@ class HellomouseZoneBot(BaseZoneBot):
             data = { 'last_modified': last_modified, 'zone': {} }
             with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'w+') as f:
                 json.dump(data, f, indent=2)
+                print(f'Created zone_data.json for {domain_id}')
+
             return True
 
         return False
