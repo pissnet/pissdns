@@ -188,7 +188,7 @@ class HellomouseZoneBot(BaseZoneBot):
                 }
             else:
                 # Handle apex records
-                if name == '@':
+                if name == '@' or name == domain_id:
                     self._handleRecords(zone, record_type, content, prio)
                 # Handle child (subdomain) records
                 else:
