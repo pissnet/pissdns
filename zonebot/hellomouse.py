@@ -81,7 +81,7 @@ class HellomouseZoneBot(BaseZoneBot):
                 data = json.load(f)
                 if data['last_modified'] != last_modified:
                     return True
-        except FileNotFoundError:
+        except (FileNotFoundError, json.decoder.JSONDecodeError, KeyError):
             data = { 'last_modified': last_modified, 'zone': {} }
             with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'w+') as f:
                 json.dump(data, f, indent=2)
