@@ -214,7 +214,8 @@ class HellomouseZoneBot(BaseZoneBot):
                             if names[i] not in current['child']:
                                 current['child'][names[i]] = {}
                             if i != len(names) - 1:
-                                current['child'][names[i]]['child'] = {}
+                                if 'child' not in current['child'][names[i]]:
+                                    current['child'][names[i]]['child'] = {}
                                 current = current['child'][names[i]]
 
                         self._handleRecords(current['child'][names[-1]], record_type, content, prio)
