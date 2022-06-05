@@ -255,7 +255,7 @@ class HellomouseZoneBot(BaseZoneBot):
                 (key, value) = dataItems[i]
                 if key in self.arrayRecords:
                     if type(value) is list:
-                        value = { 'data': flatten(value) }
+                        value = [{ 'data': i } for i in flatten(value)]
                     else:
                         value = { 'data': value }
                     dataItems[i] = (key, {
