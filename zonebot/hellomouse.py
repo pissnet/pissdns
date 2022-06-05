@@ -107,7 +107,7 @@ class HellomouseZoneBot(BaseZoneBot):
             if record_type == 'CNAME':
                 tree['ANY'] = {
                     'type': 'CNAME',
-                    'data': content
+                    'data': { 'destination': content }
                 }
             elif record_type == 'SRV':
                 values = content.split(' ')
