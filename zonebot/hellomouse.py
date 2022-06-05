@@ -3,6 +3,7 @@ from .base import BaseZoneBot
 import json
 from os.path import exists
 from os import makedirs
+import subprocess
 
 def recursive_items(dictionary: dict[str]):
     for key, value in dictionary.items():
@@ -260,6 +261,9 @@ class HellomouseZoneBot(BaseZoneBot):
             json.dump(data, f, indent=2)
             f.write('\n')
 
+        # Reload the DNS server
+        subprocess.call(['pm2', 'restart', 'dnsndng'])
+        
         # Add the domain to the CoreDNS config, only if it is not already there
         with open(f'{self.config.COREDNS_LOCATION}/Corefile', 'r+', encoding="utf-8") as f:
             contents = f.read()
