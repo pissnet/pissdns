@@ -271,3 +271,4 @@ class HellomouseZoneBot(BaseZoneBot):
             if domain_id not in contents:
                 f.write('\n')
                 f.write(f'{domain_id} {self.corednsTemplate}')
+                subprocess.call(['pm2', 'restart', 'coredns'])
