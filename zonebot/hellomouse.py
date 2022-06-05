@@ -125,7 +125,7 @@ class HellomouseZoneBot(BaseZoneBot):
 
     def _handleArrayRecords(self, tree: ZoneDataFormat, record_type: str, content: str, prio=0):
         """ Handle all necessary transformations on the records that are arrays (that accept multiple values) """
-        if not record_type in tree:
+        if not record_type in tree or not isinstance(tree[record_type], list):
             tree[record_type] = []
         match record_type:
             case 'CAA':
