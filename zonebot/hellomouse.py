@@ -57,7 +57,7 @@ class HellomouseZoneBot(BaseZoneBot):
     def __init__(self, bot, name: str, config):
         super().__init__(bot, name, config)
         # List of records that accept multiple values, and thus are arrays in the data structure
-        self.arrayRecords = ['TXT', 'A', 'AAAA', 'CNAME', 'MX', 'NS', 'SRV', 'SSHFP', 'URI']
+        self.arrayRecords = ['TXT', 'A', 'AAAA', 'MX', 'NS', 'SRV', 'SSHFP', 'URI']
         self.corednsTemplate = '\n'.join([
             '{',
             '  grpc . 127.0.0.1:5353',
