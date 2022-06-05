@@ -131,6 +131,9 @@ class BaseZoneBot(BaseServer):
                     content=ns
                 )
 
+            records_to_insert = []
+            domains_with_cnames = []
+
             # Insert dem records
             for rec in dom['records']:
                 # Ignore invalid stuff
@@ -187,14 +190,32 @@ class BaseZoneBot(BaseServer):
                     print(f"Got an invalid record! (Name too long) {rec}")
                     continue
 
-                self.insert_dns_record(
-                    domain_id=domain_id,
-                    name=rec_name,
-                    record_type=rec['type'],
-                    content=rec['value'],
-                    prio=prio,
-                    ttl=60  # TODO: Configurable TTL (wiki task)
-                )
+                if rec['type'] == "CNAME":
+                    domains_with_cnames.append(rec_name)
+
+                records_to_insert.append({
+                    'domain_id': domain_id,
+                    'name': rec_name,
+                    'record_type': rec['type'],
+                    'content': rec['value'],
+                    'prio': prio,
+                    'ttl': 60  # TODO: Configurable TTL (wiki task)
+                })
+
+            domains_with_cnames_inserted = []
+            for record in records_to_insert:
+                # Check for CNAME violations
+                if record['name'] in domains_with_cnames:
+                    if record['record_type'] != "CNAME":
+                        print(f"Got a non-CNAME record for an entry that already has a CNAME! {record}")
+                        continue
+                    else:
+                        if record['name'] in domains_with_cnames_inserted:
+                            print(f"Got a CNAME record for an entry that already has a CNAME! {record}")
+                            continue
+                        domains_with_cnames_inserted.append(record['name'])
+
+                self.insert_dns_record(**record)
 
         with open("last_data_ts", 'w') as f:
             f.write(data['last_modified'])
