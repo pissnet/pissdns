@@ -258,6 +258,7 @@ class HellomouseZoneBot(BaseZoneBot):
             # Ensure the we overwrite the existing data
             data['zone'] = dict(dataItems)
             json.dump(data, f, indent=2)
+            f.write('\n')
 
         # Add the domain to the CoreDNS config, only if it is not already there
         with open(f'{self.config.COREDNS_LOCATION}/Corefile', 'r+', encoding="utf-8") as f:
