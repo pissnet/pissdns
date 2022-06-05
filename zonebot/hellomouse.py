@@ -171,13 +171,13 @@ class HellomouseZoneBot(BaseZoneBot):
 
     def insert_dns_record(self, domain_id: str, name: str, record_type: str, content: str, prio=0, ttl=3600):
         # We have to read the zone file here, because we must assure that the JSON data written to the file is valid, so we overwrite it every time
-        file = open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'r')
+        file = open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'r', encoding='utf-8')
         contents = file.read()
         data = json.loads(contents)
         zone: ZoneDataFormat = data['zone']
         file.close()
 
-        with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'w+') as f:
+        with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'w+', encoding="utf-8") as f:
 
             # The SOA record is not handled in the DNS records by us, it's handled by the system itself
             if record_type == 'SOA':
@@ -228,14 +228,14 @@ class HellomouseZoneBot(BaseZoneBot):
         # Create the JavaScipt module to be loaded by the DNS server
         if not exists(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/index.js'):
             # Why yes, we are writing javascript in Python
-            with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/index.js', 'w+') as f:
+            with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/index.js', 'w+', encoding="utf-8") as f:
                 f.write('const { zone, soa } = require("./zone_data.json");\n')
                 f.write('const Zone = require("../../src/module").Zone;\n')
                 f.write('\n')
                 f.write(f'module.exports = new Zone("{domain_id}", zone, soa);\n')
 
         # Apply some final transformations to the zone file
-        with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'r+') as f:
+        with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'r+', encoding="utf-8") as f:
             data = json.load(f)
             dataItems = list(recursive_items(data['zone']))
 
@@ -254,7 +254,7 @@ class HellomouseZoneBot(BaseZoneBot):
             json.dump(dict(dataItems), f, indent=2)
 
         # Add the domain to the CoreDNS config, only if it is not already there
-        with open(f'{self.config.COREDNS_LOCATION}/Corefile', 'r+') as f:
+        with open(f'{self.config.COREDNS_LOCATION}/Corefile', 'r+', encoding="utf-8") as f:
             contents = f.read()
 
             if 'name' not in contents:
