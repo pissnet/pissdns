@@ -71,8 +71,8 @@ class BaseZoneBot(BaseServer):
         raise NotImplementedError
 
     def post_update(self, domain_id):
-        """ Executed after all records have been inserted for a domain we have updated. """
-        raise NotImplementedError
+        """ Executed after all records have been inserted for a domain we have updated. (Optional) """
+        pass
 
     def pre_db_update(self):
         """ Executed before inserting any records at all """
