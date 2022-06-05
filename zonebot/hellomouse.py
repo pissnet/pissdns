@@ -12,6 +12,13 @@ def recursive_items(dictionary: dict[str]):
         else:
             yield (key, value)
 
+def flatten(list_of_lists: list) -> list:
+    if len(list_of_lists) == 0:
+        return list_of_lists
+    if isinstance(list_of_lists[0], list):
+        return flatten(list_of_lists[0]) + flatten(list_of_lists[1:])
+    return list_of_lists[:1] + flatten(list_of_lists[1:])
+
 class CAARecord(TypedDict):
     flags: int
     tag: str
@@ -248,7 +255,7 @@ class HellomouseZoneBot(BaseZoneBot):
                 (key, value) = dataItems[i]
                 if key in self.arrayRecords:
                     if type(value) is list:
-                        value = { 'data': value }
+                        value = { 'data': flatten(value) }
                     else:
                         value = { 'data': value }
                     dataItems[i] = (key, {
