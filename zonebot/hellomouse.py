@@ -257,6 +257,6 @@ class HellomouseZoneBot(BaseZoneBot):
         with open(f'{self.config.COREDNS_LOCATION}/Corefile', 'r+', encoding="utf-8") as f:
             contents = f.read()
 
-            if 'name' not in contents:
+            if domain_id not in contents:
                 f.write('\n')
                 f.write(f'{domain_id} {self.corednsTemplate}')
