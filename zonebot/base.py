@@ -223,7 +223,7 @@ class BaseZoneBot(BaseServer):
 
                 self.insert_dns_record(**record)
 
-                self.post_update(domain_id)
+            self.post_update(domain_id)
 
         with open("last_data_ts", 'w') as f:
             f.write(data['last_modified'])
