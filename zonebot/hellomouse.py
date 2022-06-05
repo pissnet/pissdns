@@ -269,7 +269,7 @@ class HellomouseZoneBot(BaseZoneBot):
             f.write('\n')
 
         # Reload the DNS server
-        subprocess.call(['pm2', 'restart', 'dnsndng'])
+        subprocess.call(['pm2', 'restart', 'dnsdng'])
         
         # Add the domain to the CoreDNS config, only if it is not already there
         with open(f'{self.config.COREDNS_LOCATION}/Corefile', 'r+', encoding="utf-8") as f:
