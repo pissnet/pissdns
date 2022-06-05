@@ -5,13 +5,6 @@ from os.path import exists
 from os import makedirs
 import subprocess
 
-def recursive_items(dictionary: dict[str]):
-    for key, value in dictionary.items():
-        if type(value) is dict:
-            yield from recursive_items(value)
-        else:
-            yield (key, value)
-
 def flatten(list_of_lists: list) -> list:
     if len(list_of_lists) == 0:
         return list_of_lists
@@ -232,6 +225,14 @@ class HellomouseZoneBot(BaseZoneBot):
                         self._handleRecords(zone['child'][record_name], record_type, content, prio)
             json.dump(data, f, indent=2)
 
+    def _final_transformation(self, data) -> dict[str]:
+        if isinstance(data, dict):
+            return { key: self._final_transformation(val) if key in self.arrayRecords else val for key, val in data.items() }
+        return {
+            'type': 'static',
+            'data': [{ 'data': i } for i in flatten(data)] if type(data) is list else [{ 'data': data }]
+        }
+
     def post_update(self, domain_id: str):
         # Create the JavaScipt module to be loaded by the DNS server
         if not exists(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/index.js'):
@@ -249,18 +250,8 @@ class HellomouseZoneBot(BaseZoneBot):
         file.close()
 
         with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'w+', encoding="utf-8") as f:
-            dataItems = list(recursive_items(data['zone']))
-
-            for i in range(len(dataItems)):
-                (key, value) = dataItems[i]
-                if key in self.arrayRecords:
-                    dataItems[i] = (key, {
-                        'type': 'static',
-                        'data': [{ 'data': i } for i in flatten(value)] if type(value) is list else [{ 'data': value }]
-                    })
-
             # Ensure the we overwrite the existing data
-            data['zone'] = dict(dataItems)
+            data['zone'] = self._final_transformation(data['zone'])
             json.dump(data, f, indent=2)
             f.write('\n')
 
