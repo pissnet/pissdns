@@ -213,7 +213,7 @@ class HellomouseZoneBot(BaseZoneBot):
                                 current['child'][names[i]] = {}
                             if i != len(names) - 1:
                                 current['child'][names[i]]['child'] = {}
-                            current = current['child'][names[i]]
+                                current = current['child'][names[i]]
 
                         self._handleRecords(current['child'][names[-1]], record_type, content, prio)
                     # Handle single-level subdomains
