@@ -52,6 +52,8 @@ class BaseZoneBot(BaseServer):
                 ver_date = subprocess.check_output(['git', 'show', '-s', '--format=format:%cd']).decode()
                 tag = subprocess.check_output(['git', 'describe', '--always', '--dirty']).decode().strip()
                 await self.msg(line, f"Version: \002{tag}\002 ({ver_date})")
+            elif command == "force_update":
+                await self.update_dns(force=True)
 
     def insert_dns_record(self, domain_id, name, record_type, content, prio=0, ttl=3600):
         raise NotImplementedError
@@ -72,7 +74,7 @@ class BaseZoneBot(BaseServer):
         """ Executed before inserting any records at all """
         pass
 
-    async def update_dns(self):
+    async def update_dns(self, force=False):
         async with aiohttp.ClientSession() as session:
             async with session.get("https://api.shitposting.space/piss/dns") as resp:
                 raw_data = await resp.read()
@@ -86,7 +88,7 @@ class BaseZoneBot(BaseServer):
         except FileNotFoundError:
             pass  # first run
 
-        if data['last_modified'] == last_data:
+        if not force and data['last_modified'] == last_data:
             return
         print("Fresh data, updating...")
         souce_hash = hashlib.sha1(raw_data).hexdigest()[:10]
