@@ -235,8 +235,12 @@ class HellomouseZoneBot(BaseZoneBot):
                 f.write(f'module.exports = new Zone("{domain_id}", zone, soa);\n')
 
         # Apply some final transformations to the zone file
-        with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'r+', encoding="utf-8") as f:
-            data = json.load(f)
+        # We have to read the zone file here, because we must assure that the JSON data written to the file is valid, so we overwrite it every time
+        file = open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'r', encoding='utf-8')
+        data = json.loads(file.read())
+        file.close()
+
+        with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/zone_data.json', 'w+', encoding="utf-8") as f:
             dataItems = list(recursive_items(data['zone']))
 
             for i in range(len(dataItems)):
