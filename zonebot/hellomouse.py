@@ -123,12 +123,12 @@ class HellomouseZoneBot(BaseZoneBot):
         match record_type:
             case 'CAA':
                 values = content.split(' ')
-                flags = values[0]
+                flags = int(values[0])
                 tree[record_type].append({
-                    'flags': int(flags),
+                    'flags': flags,
                     'tag': values[1],
                     'value': values[2].replace('"', ''),
-                    'issuerCritical': True if flags[0] == '1' else False
+                    'issuerCritical': True if flags == 128 else False
                 })
             case 'MX':
                 if prio != 0:
