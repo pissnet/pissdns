@@ -120,40 +120,45 @@ class HellomouseZoneBot(BaseZoneBot):
         """ Handle all necessary transformations on the records that are arrays (that accept multiple values) """
         if not record_type in tree or not isinstance(tree[record_type], list):
             tree[record_type] = []
+        record = None
         match record_type:
             case 'CAA':
                 values = content.split(' ')
                 flags = int(values[0])
-                tree[record_type].append({
+                record = {
                     'flags': flags,
                     'tag': values[1],
                     'value': values[2].replace('"', ''),
                     'issuerCritical': True if flags == 128 else False
-                })
+                }
             case 'MX':
                 if prio != 0:
-                    tree[record_type].append({
+                    record = {
                         'preference': prio,
                         'exchange': content
-                    })
+                    }
                 else:
-                    tree[record_type].append({
+                    record = {
                         'exchange': content
-                    })
+                    }
+                
             case 'SSHFP':
                 values = content.split(' ')
-                tree[record_type].append({
+                record ={
                     'algorithm': int(values[0]),
                     'fingerprintType': int(values[1]),
                     'fingerprint': values[2]
-                })
+                }
             case 'TXT':
                 if len(tree[record_type]) == 1:
-                    tree[record_type] = [tree[record_type], [content]]
+                    if content not in tree[record_type]:
+                        tree[record_type] = [tree[record_type], [content]]
                 elif len(tree[record_type]) > 1:
-                    tree[record_type].append([content])
+                    if [content] not in tree[record_type]:
+                        tree[record_type].append([content])
                 else:
-                    tree[record_type].append(content)
+                    if content not in tree[record_type]:
+                        tree[record_type].append(content)
             case 'URI':
                 values = content.split(' ')
                 if len(values) != 3:
@@ -170,6 +175,8 @@ class HellomouseZoneBot(BaseZoneBot):
             case _:
                 tree[record_type].append(content)
 
+        if record not in tree[record_type] and record is not None:
+            tree[record_type].append(record)
 
     def insert_dns_record(self, domain_id: str, name: str, record_type: str, content: str, prio=0, ttl=3600):
         # We have to read the zone file here, because we must assure that the JSON data written to the file is valid, so we overwrite it every time
