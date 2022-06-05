@@ -228,7 +228,7 @@ class HellomouseZoneBot(BaseZoneBot):
 
     def _final_transformation(self, data) -> dict[str]:
         if isinstance(data, dict):
-            return { key: self._final_transformation(val) if key in self.arrayRecords else val for key, val in data.items() }
+            return { key: self._final_transformation(val) if key in self.arrayRecords or isinstance(val, dict) else val for key, val in data.items() }
         return {
             'type': 'static',
             'data': [{ 'data': i } for i in flatten(data)] if type(data) is list else [{ 'data': data }]
