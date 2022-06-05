@@ -254,13 +254,9 @@ class HellomouseZoneBot(BaseZoneBot):
             for i in range(len(dataItems)):
                 (key, value) = dataItems[i]
                 if key in self.arrayRecords:
-                    if type(value) is list:
-                        value = [{ 'data': i } for i in flatten(value)]
-                    else:
-                        value = { 'data': value }
                     dataItems[i] = (key, {
                         'type': 'static',
-                        'data': [value]
+                        'data': [{ 'data': i } for i in flatten(value)] if type(value) is list else [{ 'data': value }]
                     })
 
             # Ensure the we overwrite the existing data
