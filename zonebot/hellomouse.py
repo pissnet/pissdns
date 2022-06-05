@@ -228,7 +228,7 @@ class HellomouseZoneBot(BaseZoneBot):
         # Create the JavaScipt module to be loaded by the DNS server
         if not exists(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/index.js'):
             # Why yes, we are writing javascript in Python
-            with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/index.js', 'r+') as f:
+            with open(f'{self.config.ZONEFILE_LOCATION}/{domain_id}/index.js', 'w+') as f:
                 f.write('const { zone, soa } = require("./zone_data.json");\n')
                 f.write('const Zone = require("../../src/module").Zone;\n')
                 f.write('\n')
