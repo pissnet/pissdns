@@ -208,7 +208,7 @@ class HellomouseZoneBot(BaseZoneBot):
                         current = zone
 
                         # Iterate over all levels of the subdomains to create the data structure, and get to the last one
-                        for i in range(len(names) - 1):
+                        for i in range(len(names)):
                             if names[i] not in current['child']:
                                 current['child'][names[i]] = {}
                             if i != len(names) - 1:
