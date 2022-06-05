@@ -62,7 +62,7 @@ class HellomouseZoneBot(BaseZoneBot):
             '{',
             '  grpc . 127.0.0.1:5353',
             '  log',
-            f'  bind 127.0.0.1 ::1 {self.config.IPV6_ADDR} {self.config.IPV4_ADDR}',
+            f'  bind 127.0.0.1 ::1 {self.config.IPV4_ADDR} {self.config.IPV6_ADDR}',
             '}'
         ])
 
