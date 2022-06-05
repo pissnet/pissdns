@@ -243,7 +243,7 @@ class HellomouseZoneBot(BaseZoneBot):
                 (key, value) = dataItems[i]
                 if key in self.arrayRecords:
                     if type(value) is list:
-                        value = map(lambda x: { 'data': x }, value)
+                        value = { 'data': value }
                     else:
                         value = { 'data': value }
                     dataItems[i] = (key, {
